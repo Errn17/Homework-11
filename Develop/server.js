@@ -43,6 +43,7 @@ app.get("*", (req, res) => {
 
 //function for writing the note to the json file
 app.post("/api/notes", (req, res) => {
+  let savedNote = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
   let newNote = req.body;
   let finishNote = savedNote.length.toString();
   newNote.id = finishNote;
