@@ -9,13 +9,10 @@ const fs = require("fs");
 
 //setting up express server and port to listen on
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 //const for path to the main directory to make path shorter and quicker
 const mainDir = path.join(__dirname, "/public");
-
-//Empty array for notes
-let notes = [];
 
 //Using the express app middleware to parse the data
 app.use(express.urlencoded({ extended: true }));
@@ -23,25 +20,31 @@ app.use(express.json());
 app.use(express.static("public"));
 
 //setting up routes
-//route to notes page
+app.get("/", (req, res) => {
+  res.json(path.join(mainDir, "index.html"));
+});
+//route to notes page using the GET method
 app.get("/notes", (req, res) => {
   res.sendFile(path.join(mainDir, "notes.html"));
 });
 
+//route to the json note file
 app.get("/api/notes", (req, res) => {
   res.sendFile(path.join(__dirname, "/db/db.json"));
 });
 
+//route to give each note a unique id
 app.get("/api/notes/:id", (req, res) => {
   let savedNote = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
   res.json(savedNote[Number(req.params.id)]);
 });
 
+//route to the get started page
 app.get("*", (req, res) => {
   res.sendFile(path.join(mainDir, "index.html"));
 });
 
-//function for writing the note to the json file
+//function for writing and saving the note to the json file, using the POST method
 app.post("/api/notes", (req, res) => {
   let savedNote = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
   let newNote = req.body;
@@ -51,6 +54,24 @@ app.post("/api/notes", (req, res) => {
 
   fs.writeFileSync("./db/db.json", JSON.stringify(savedNote));
   console.log("New note has been saved. Note: ", newNote);
+  res.json(savedNote);
+});
+
+//function for deleting notes using the DELETE method
+app.delete("/api/notes/:id", (req, res) => {
+  let savedNote = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+  let noteID = req.params.id;
+  let newID = 0;
+  console.log(`Note has been deleted with ID ${noteID}`);
+  savedNote = savedNote.filter((currNote) => {
+    return currNote.id != noteID;
+  });
+  for (currNote of savedNote) {
+    currNote.id = newId.toString();
+    newID++;
+  }
+
+  fs.writeFileSync("./db/db.json", JSON.stringify(savedNote));
   res.json(savedNote);
 });
 
