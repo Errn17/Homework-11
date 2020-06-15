@@ -9,7 +9,7 @@ const fs = require("fs");
 
 //setting up express server and port to listen on
 const app = express();
-const port = 8080;
+const PORT = 8080;
 
 //const for path to the main directory to make path shorter and quicker
 const mainDir = path.join(__dirname, "/public");
@@ -41,4 +41,19 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(mainDir, "index.html"));
 });
 
-//functions for writing the note to the json file
+//function for writing the note to the json file
+app.post("/api/notes", (req, res) => {
+  let newNote = req.body;
+  let finishNote = savedNote.length.toString();
+  newNote.id = finishNote;
+  savedNote.push(newNote);
+
+  fs.writeFileSync("./db/db.json", JSON.stringify(savedNote));
+  console.log("New note has been saved. Note: ", newNote);
+  res.json(savedNote);
+});
+
+//listening for port
+app.listen(PORT, () => {
+  console.log(`Listening on PORT http://localhost:${PORT}`);
+});
