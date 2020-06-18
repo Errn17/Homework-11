@@ -70,7 +70,7 @@ app.delete("/api/notes/:id", (req, res) => {
     return currNote.id != noteID;
   });
   for (currNote of savedNote) {
-    currNote.id = newId.toString();
+    currNote.id = newID.toString();
     newID++;
   }
 
